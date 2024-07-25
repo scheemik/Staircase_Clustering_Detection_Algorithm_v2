@@ -1,7 +1,10 @@
-# Staircase Clustering Detection Algorithm
+# Staircase Clustering Detection Algorithm version 2
 
-Written by Mikhail Schee for:
+Written by Mikhail Schee for the PhD thesis: Thermohaline staircases in the Arctic Ocean: Detection, evolution, and interaction
+
+Based upon the code written for:
 Mikhail Schee, Erica Rosenblum, Jonathan M. Lilly, and Nicolas Grisouard (2023) "Unsupervised Clustering Identifies Thermohaline Staircases in the Canada Basin of the Arctic Ocean"
+which can be found at https://zenodo.org/doi/10.5281/zenodo.8029947
 
 ## License
 
@@ -20,13 +23,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS "AS IS" AND ANY EXPRESSED OR 
 
 * Corresponding Author: Mikhail Schee (he/him)
 * Email: [mikhail.schee@mail.utoronto.ca](mailto:mikhail.schee@mail.utoronto.ca)
-* GitHub: https://github.com/scheemik/Staircase_Clustering_Detection_Algorithm
+* GitHub: https://github.com/scheemik/Staircase_Clustering_Detection_Algorithm_v2
 
 ## Summary
 
 This repository contains the code used by the above study to apply the Hierarchical Density-Based Spatial Clustering of Applications with Noise (HDBSCAN) clustering algorithm to data from Ice Tethered Profilers.
 
 A detailed explanation of how the code was used to make each plot in the study can be found in the accompanying Jupyter notebook `Create_Figures.ipynb`.
+
+## Steps to get final clustered netcdfs
+
+1. Run `make_netcdf.py`, `take_moving_average.py`, and `subsample_netcdf.py`, in that order
+2. Make minimal netcdfs to send to Niagara, using `cluster_data.py` and setting `m_pts=None`
+3. Send those netcdfs to Niagara, can use `HPC_scp_to_Niagara.sh`
+4. Edit `HPC_param_sweep.py` for each run, specifying `ds_this_BGR` and `this_plot_title`, then push to git repo
+5. Run parameter sweeps on Niagara, using `HPC_job_submit.sh` (auto runs git pull) without `-c` option 
+6. Find the `mpts` with the highest `DBCV` for each netcdf, plot those clusters with `figures.py`
+7. Edit the `relab_these` variables for each netcdf so the cluster IDs line up across periods
+8. Run `cluster_data.py` with those values of `mpts` and `relab_these` to make clustered netcdfs
 
 ## Acknowledgements
 
