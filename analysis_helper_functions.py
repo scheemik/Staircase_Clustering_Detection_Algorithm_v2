@@ -70,7 +70,7 @@ $ conda install -c conda-forge cartopy
 """
 try:
     import cartopy.crs as ccrs
-    import cartopy.feature
+    import cartopy.feature 
 except:
     print('Warning: could not import the cartopy package')
 
@@ -94,21 +94,21 @@ jackson_clr = np.array(["#000000",  #  0 black              #
                         "#004949",  #  1 dark olive         # light
                         "#009292",  #  2 teal               # light / dark
                         "#ff6db6",  #  3 hot pink           # 
-                        "#ffb6db",  #  4 light pink         #         dark
+                        "#ffb6db",  #  4 light pink         #               too close to AW clr
                         "#490092",  #  5 dark purple        # light
-                        "#006ddb",  #  6 royal blue         #         dark
+                        "#006ddb",  #  6 royal blue         #               too close to LHW clr
                         "#b66dff",  #  7 violet             #         dark
                         "#6db6ff",  #  8 sky blue           #
                         "#b6dbff",  #  9 pale blue          #         dark
-                        "#920000",  # 10 dark red           # light
+                        "#920000",  # 10 dark red           # light / dark
                         "#924900",  # 11 brown              #
-                        "#db6d00",  # 12 dark orange        # light
+                        "#db6d00",  # 12 dark orange        # light / dark
                         "#24ff24",  # 13 neon green         # light / dark
                         "#ffff6d"]) # 14 yellow             # light / dark
 
 # Enable dark mode plotting
 if dark_mode:
-    plt.style.use('dark_background')
+    plt.style.use('dark_background') 
     std_clr = 'w'
     bg_clr = 'k'
     alt_std_clr = 'yellow'
@@ -117,8 +117,8 @@ if dark_mode:
     clr_ocean = 'k'
     clr_land  = 'grey'
     clr_lines = 'w'
-    clstr_clrs = jackson_clr[[2,14,4,6,7,9,13]]
-    bathy_clrs = ['#000040','k']
+    clstr_clrs = jackson_clr[[2,14,12,10,7,9,13]] # old:jackson_clr[[2,14,4,6,7,9,13]]
+    bathy_clrs = ['k', '#000080'] # ['#000040','k']
 else:
     std_clr = 'k'
     bg_clr = 'w'
@@ -2198,7 +2198,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600)
+            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -2253,7 +2253,7 @@ def set_fig_axes(heights, widths, fig_ratio=0.5, fig_size=1, share_x_axis=None, 
         print('\tSet share_x_axis to', share_x_axis)
     # Set ratios by passing dictionary as 'gridspec_kw', and share y axis
     fig, axes = plt.subplots(figsize=(w*fig_size,h*fig_size), nrows=rows, ncols=cols, gridspec_kw=plot_ratios, sharex=share_x_axis, sharey=share_y_axis, subplot_kw=dict(projection=prjctn))
-    if rows != 1 or cols != 1:
+    if True:#rows != 1 or cols != 1:
         fixed_width = 16
         fig.set_size_inches(fixed_width, fixed_width*h/w)
     # Set ticklabel format for all axes
@@ -3984,10 +3984,7 @@ def add_linear_slope(ax, pp, df, x_data, y_data, x_key, y_key, linear_clr, plot_
     # anno_x = x_mean+x_stdv/4
     anno_x = max(x_bnds) - 5*x_span/12
     anno_y = y_mean+y_stdv/0.5
-    if dark_mode:
-        ax.annotate(anno_prefix+annotation_string+per_unit, xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
-    else:
-        ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
+    ax.annotate(r'$\mathbf{'+anno_prefix+annotation_string+per_unit+'}$', xy=(anno_x, anno_y), xycoords='data', color=linear_clr, fontsize=font_size_lgnd, fontweight='bold', bbox=anno_bbox, zorder=12)
 
 ################################################################################
 
@@ -4723,7 +4720,7 @@ def plot_histogram(a_group, ax, pp, df, x_key, y_key, clr_map, legend=True, txk=
         if plt_noise and len(df_noise) > 0:
             # Get histogram parameters
             if isinstance(n_h_bins, type(None)):
-                n_h_bins = 25
+                n_h_bins = 50
             h_var, res_bins, median, mean, std_dev = get_hist_params(df_noise, var_key, n_h_bins*n_clusters)
             # Plot the noise histogram on a twin axis
             if orientation == 'vertical':
@@ -7193,9 +7190,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 ax.errorbar(x_data, y_data, yerr=yerrs, color=my_clr, capsize=l_cap_size)
             elif 'nir' in x_key or 'cRL' in x_key or 'cRl' in x_key:
                 my_mkr = r"${}$".format(str(i))
-                # Plot a backing circle for the cluster number if it's a light color
-                if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                    ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
+                # Plot a backing circle for the cluster number if the color has low contrast
+                if dark_mode:
+                    if my_clr in [jackson_clr[2], jackson_clr[10]]:
+                        ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
+                else:
+                    if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                        ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=5)
                 # Plot the cluster number
                 ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=1, zorder=5)
             else:
@@ -7207,9 +7208,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                         ax.scatter(x_data, y_data, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
                     # If using a number as a marker, plot a backing circle
                     if my_mkr == r"${}$".format(str(i)):
-                        # Plot a backing circle for the cluster number if it's a light color
-                        if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                            ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=4)
+                        # Plot a backing circle for the cluster number if the color has low contrast
+                        if dark_mode:
+                            if my_clr in [jackson_clr[2], jackson_clr[10]]:
+                                ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=4)
+                        else:
+                            if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                                ax.scatter(x_data, y_data, color=std_clr, s=m_size*1.1, marker='o', alpha=0.5, zorder=4)
                 else:
                     # Plot in 3D
                     ax.scatter(x_data, y_data, zs=df_z_key, color=my_clr, s=m_size, marker=my_mkr, alpha=m_alpha, zorder=5)
@@ -7269,9 +7274,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                # Plot a backing circle for the cluster number if it's a light color
-                if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
+                # Plot a backing circle for the cluster number if the color has low contrast
+                if dark_mode:
+                    if my_clr in [jackson_clr[2], jackson_clr[10]]:
+                        ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
+                else:
+                    if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                        ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the left-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)
@@ -7295,9 +7304,13 @@ def plot_clusters(a_group, ax, pp, df, x_key, y_key, z_key, cl_x_var, cl_y_var, 
                 y_mean = np.mean(y_data)
                 # Decide on the color and symbol, don't go off the end of the arrays
                 my_clr = distinct_clrs[i%len(distinct_clrs)]
-                # Plot a backing circle for the cluster number if it's a light color
-                if my_clr in [jackson_clr[13], jackson_clr[14]]:
-                    ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
+                # Plot a backing circle for the cluster number if the color has low contrast
+                if dark_mode:
+                    if my_clr in [jackson_clr[2], jackson_clr[10]]:
+                        ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
+                else:
+                    if my_clr in [jackson_clr[13], jackson_clr[14]]:
+                        ax.scatter(x_place, y_mean, color=std_clr, s=cent_mrk_size*1.3, marker='o', alpha=0.5, zorder=9)
                 # This will plot the cluster number on the right-hand side
                 ax.scatter(x_place, y_mean, color=my_clr, s=cent_mrk_size, marker=r"${}$".format(str(i)), zorder=10)
                 these_clst_ids.append(i)

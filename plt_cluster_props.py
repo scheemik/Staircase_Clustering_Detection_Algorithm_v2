@@ -27,6 +27,8 @@ import dill as pl
 # Import the Thermodynamic Equation of Seawater 2010 (TEOS-10) from GSW
 # For finding density and heat capacity
 import gsw
+# For a style that matches scientific papers
+import scienceplots
 
 # For common BGR parameters
 import BGR_params as bps
@@ -40,7 +42,8 @@ this_BGR = 'BGR_all'
 ################################################################################
 # Declare variables for plotting
 ################################################################################
-dark_mode = False
+dark_mode = True
+plt.style.use('science')
 
 # Enable dark mode plotting
 if dark_mode:
@@ -596,7 +599,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=None, use_same_y_
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600)
+            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -1579,7 +1582,7 @@ if False:
     # group_LHW_CT_map = Analysis_Group2([bnds_df], pp_LHW_CT_map, plot_title=r'LHW core')
     # group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core')
     # Make the figure
-    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.6], filename='f2_LHW_and_AW_press_maps.png')
+    make_figure([group_LHW_map, group_AW_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[1,2, 0.45, 1.6], filename='alpha_d_f2_LHW_and_AW_press_maps.png')
     # make_figure([group_LHW_map, group_AW_map, group_LHW_CT_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='LHW_and_AW_press_maps.pdf')
 #*# Maps of LHW and AW cores in SA and CT
 if False:
@@ -1596,22 +1599,23 @@ if False:
     group_AW_SA_map = Analysis_Group2([bnds_df], pp_AW_SA_map, plot_title=r'AW core, $S_A$')
     group_AW_CT_map = Analysis_Group2([bnds_df], pp_AW_CT_map, plot_title=r'AW core, $\Theta$')
     # Make the figure
-    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='C2_LHW_AW_maps_SA_CT.png')
+    make_figure([group_LHW_SA_map, group_LHW_CT_map, group_AW_SA_map, group_AW_CT_map], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,2, 0.8, 1.6], filename='alpha_d_C2_LHW_AW_maps_SA_CT.png')
 #*# Plot press_TC_max and press_TC_min histograms, maps with polyfits, residuals, and histograms of fits
 if False:
     print('')
     print('- Creating a histogram and map of LHW and AW cores')
     # Make the Plot Parameters
+    this_n_h_bins = 500
     # Top of the thermocline, LHW core
-    pp_LHW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min'], extra_args={'n_h_bins':this_n_h_bins, 'plot_slopes':False}, ax_lims={'y_lims':press_lims_LHW}, legend=LHW_AW_legend)
     pp_LHW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_LHW}, legend=LHW_AW_legend)
     pp_LHW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_min-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
-    pp_LHW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
+    pp_LHW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_min-fit'], extra_args={'n_h_bins':this_n_h_bins, 'plot_slopes':False, 'extra_vars_to_keep':['press_TC_min'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_LHW}, legend=LHW_AW_legend)
     ## Bottom of the thermocline, AW core
-    pp_AW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':press_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max'], extra_args={'n_h_bins':this_n_h_bins, 'plot_slopes':False}, ax_lims={'y_lims':press_lims_AW}, legend=LHW_AW_legend)
     pp_AW_fit_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_lims_AW}, legend=LHW_AW_legend)
     pp_AW_res_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='press_TC_max-fit', extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
-    pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
+    pp_AW_res_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['press_TC_max-fit'], extra_args={'n_h_bins':this_n_h_bins, 'plot_slopes':False, 'extra_vars_to_keep':['press_TC_max'], 'fit_vars':['lon','lat']}, ax_lims={'y_lims':press_fit_lims_AW}, legend=LHW_AW_legend)
     # Make the subplot groups
     group_LHW_hist = Analysis_Group2([bnds_df], pp_LHW_hist, plot_title=r'LHW core')#, $p(S_A\approx34.1)$')
     group_LHW_fit_map = Analysis_Group2([bnds_df], pp_LHW_fit_map, plot_title=r'$p(S_A\approx34.1)$ and polyfit2d')
@@ -1622,7 +1626,7 @@ if False:
     group_AW_res_map = Analysis_Group2([bnds_df], pp_AW_res_map, plot_title=r'Residuals')
     group_AW_res_hist = Analysis_Group2([bnds_df], pp_AW_res_hist, plot_title=r'Residuals')
     # Make the figure
-    make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.5, 1.6], filename='f3_LHW_and_AW_hists_and_polyfits.pdf')
+    make_figure([group_LHW_hist, group_LHW_fit_map, group_LHW_res_map, group_LHW_res_hist, group_AW_hist, group_AW_fit_map, group_AW_res_map, group_AW_res_hist], use_same_x_axis=False, use_same_y_axis=False, row_col_list=[2,4, 0.5, 1.6], filename='alpha_d_f3_LHW_and_AW_hists_and_polyfits.png')
 #*# Tracking LHW and AW cores over time
 if False:
     print('')
@@ -1639,7 +1643,10 @@ if False:
     group_AW = Analysis_Group2([bnds_df], pp_AW, plot_title=r'AW core, $p(\Theta_{max})$')
     group_AW_fit = Analysis_Group2([bnds_df], pp_AW_fit, plot_title=r'$p(\Theta_{max})$ - polyfit2d')
     # Make the figure
-    make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='f4_LHW_and_AW_trends_in_time.pdf')
+    #   Note: for this plot, cannot use both 'dark_background' and 'science' plot styles
+    make_figure([group_LHW, group_LHW_fit, group_AW, group_AW_fit], row_col_list=[2,2, 0.48, 1.5], filename='alpha_d_f4_LHW_and_AW_trends_in_time.png')
+    make_figure([group_LHW, group_LHW_fit], row_col_list=[2,1, 0.45, 1.4], filename='alpha_d_f4_LHW_trends_in_time.png')
+    make_figure([group_AW, group_AW_fit], row_col_list=[2,1, 0.45, 1.4], filename='alpha_d_f4_AW_trends_in_time.png')
 ################################################################################
 # Histograms of the cluster properties
 # Histogram of cluster average temperature
@@ -1664,13 +1671,13 @@ if False:
     # this_ca_var = 'ca_SA'
     # these_y_lims = [bps.S_range_LHW_AW[1], bps.S_range_LHW_AW[0]]
     # Make the plot parameters
-    pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[0,2], 'y_lims':these_y_lims}) # 'x_lims':[-5,160]
-    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-60,0], 'y_lims':these_y_lims}) # 'x_lims':[-100,100]
+    pp_nir = ahf.Plot_Parameters(x_vars=['nir_SA'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':False, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-5,160], 'y_lims':these_y_lims}) # 'x_lims':[-5,160] OR [0,2]
+    pp_cRL = ahf.Plot_Parameters(x_vars=['cRL'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':True, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press']}, legend=False, ax_lims={'x_lims':[-100,100], 'y_lims':these_y_lims}) # 'x_lims':[-100,100] OR [-60,0]
     # Make the subplot groups
     group_nir = Analysis_Group2([df], pp_nir, plot_title='')#this_BGR)
     group_cRL = Analysis_Group2([df], pp_cRL, plot_title='')#this_BGR)
     # Make the figure
-    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='f7-1_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.pdf')
+    make_figure([group_nir, group_cRL], row_col_list=[1,2, 0.48, 1.25], filename='alpha_d_f7_BGR_all_RL_IR_SA_vs_'+this_ca_var+'.png')
 ################################################################################
 # The IR and spans in all variables for all clusters
 # Make plots of the IR and cluster spans in the cluster properties
@@ -1700,7 +1707,7 @@ plot_slopes = 'OLS'
 these_ax_lims = None#{'y_lims':[355,190]}
 add_legend = True
 if False:
-# for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
+# for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
     for this_clr_map in ['clr_all_same', 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['ca_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
@@ -1722,8 +1729,8 @@ if False:
 plot_slopes = 'OLS'
 these_ax_lims = None #{'y_lims':[355,190]}
 add_legend = True
-# if False:
-for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
+if False:
+# for this_ca_var in ['ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
     for this_clr_map in ['clr_all_same', 'cluster']:
         # Make the Plot Parameters
         pp_press_trends = ahf.Plot_Parameters(x_vars=['trd_press-fit'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':plot_slopes, 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'cRL','nir_SA'], 'mark_LHW_AW':True}, ax_lims=these_ax_lims, legend=add_legend)
@@ -1737,12 +1744,12 @@ for this_ca_var in ['ca_SA']:#, 'ca_press', 'ca_SA', 'ca_CT', 'ca_sigma']:
         # group_sig_trends = Analysis_Group2([df], pp_sig_trends)
         # Make the figure
         # make_figure([group_press_trends, group_SA_trends, group_CT_trends, group_sig_trends], row_col_list=[1,4, 0.3, 1.03])#, filename='fit4-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
-        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='f9-1_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.pdf')
+        make_figure([group_press_trends, group_SA_trends, group_CT_trends], row_col_list=[1,3, 0.35, 1.03], filename='alpha_f9_fit-trends_vs_'+this_ca_var+'_w_clrmap_'+this_clr_map+'.png')
     these_ax_lims = None
 ################################################################################
 # Thicknesses of the layers
 # Plot of pcs_press for all profiles against this_ca_var
-# this_clr_map = 'clr_all_same'
+this_clr_map = 'clr_all_same'
 this_clr_map = 'cluster'
 # this_ca_var = 'ca_press'
 # this_vert_var = 'press'
@@ -1750,7 +1757,8 @@ this_ca_var = 'ca_SA'
 this_vert_var = 'SA'
 if False:
     # Load the per-profile data
-    df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+    # df_per_pf = pl.load(open('outputs/'+this_BGR+'_pf_cluster_properties.pickle', 'rb'))
+    df_per_pf = pl.load(open('outputs/'+this_BGR+'_SA_divs_pf_cluster_properties.pickle', 'rb'))
     # To compare to Shibley et al. 2019 Figure 6b: 
     #   Use only ITP13 between August 2007 - August 2008 (ITP13 has data in this time period only)
     plot_Shibley2019_fig6b = False
@@ -1816,7 +1824,7 @@ if False:
         # Make the subplot groups
         group_nzpcs = Analysis_Group2([nzdf_per_pf], pp_nzpcs, plot_title=this_plt_title)
         # Make the figure
-        make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1], filename='C10_ITP13_compare_to_Shibley2019fig6b.pdf')
+        make_figure([group_nzpcs], row_col_list=[1,1, 0.35, 1.1], filename='alpha_C10_ITP13_compare_to_Shibley2019fig6b.png')
 
     # Plot of trends in pcs_press for each cluster, with zero values and without
     if False:
@@ -1844,7 +1852,7 @@ if False:
         group_ca_nzpcs = Analysis_Group2([df], pp_ca_nzpcs, plot_title='')
         group_trd_nzpcs= Analysis_Group2([df], pp_trd_nzpcs, plot_title='')
         # Make the figure
-        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='f10_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
+        make_figure([group_nzpcs, group_ca_nzpcs, group_trd_nzpcs], row_col_list=[1,3, 0.3, 1.02], filename='alpha_d_f10_BGR_all_layer_thickness_'+this_clr_map+'.png')# row_col_list=[1,2, 0.45, 1.2])
     
     # Plot of thickness for just one cluster
     this_clstr_id = 5
@@ -1869,19 +1877,20 @@ if False:
         nzdf_per_pf['nzpcs_press_mean'] = nzdf_per_pf['nzpcs_press']
         # Make the plot parameters
         pp_pcs_map = ahf.Plot_Parameters(x_vars=['lon'], y_vars=['lat'], clr_map='nzpcs_press_mean', extra_args={'plot_slopes':True, 'extra_vars_to_keep':[]}, ax_lims={'x_lims':bps.lon_BGR, 'y_lims':bps.lat_BGR, 'c_lims':[0,3]}, legend=False)
-        pp_pcs_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['nzpcs_press_mean'], extra_args={'plot_slopes':False}, ax_lims={'y_lims':[0,3]}, legend=False)
+        pp_pcs_hist = ahf.Plot_Parameters(x_vars=['hist'], y_vars=['nzpcs_press_mean'], extra_args={'n_h_bins':100, 'plot_slopes':False}, ax_lims={'y_lims':[0,3]}, legend=False)
         # Make the subplot groups
         group_pcs_map = Analysis_Group2([nzdf_per_pf], pp_pcs_map, plot_title='')
         group_pcs_hist = Analysis_Group2([nzdf_per_pf], pp_pcs_hist, plot_title='')
         # Make the figure
-        make_figure([group_pcs_map, group_pcs_hist], filename='C11_BGR_all_nzpcs_press_mean_per_pf.pdf')
+        make_figure([group_pcs_map, group_pcs_hist], filename='C11_BGR_all_nzpcs_press_mean_per_pf.png')
 ################################################################################
 # Calculating heat flux in W/m^2
 # Plots of cluster averages of components of the heat flux
 #   height, isobaric heat capacity, temperature trend in time, density
 this_ca_var = 'ca_SA'
 this_clr_map = 'clr_all_same'
-if False:
+this_clr_map = 'cluster'
+if True:
     # Make the Plot Parameters
     pp_height = ahf.Plot_Parameters(x_vars=['nzca_pcs_press'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
     pp_cp = ahf.Plot_Parameters(x_vars=['ca_cp'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
@@ -1894,8 +1903,8 @@ if False:
     group_rho = Analysis_Group2([df], pp_rho, plot_title='')
     # Make the figure
     # make_figure([group_height, group_cp])
-    make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6], filename='C12_BGR_all_FH_comps_vs_SA.pdf')
-# Plot of the heat flux in W/m^2
+    make_figure([group_height, group_cp, group_trd_CT, group_rho], row_col_list=[2,2, 0.6, 1.6], filename='alpha_d_C12_BGR_all_FH_comps_vs_SA.png')
+#*# Plot of the heat flux in W/m^2
 if False:
     # Make the Plot Parameters
     pp_FH = ahf.Plot_Parameters(x_vars=['ca_FH'], y_vars=[this_ca_var], clr_map=this_clr_map, extra_args={'re_run_clstr':False, 'sort_clstrs':False, 'b_a_w_plt':False, 'plot_noise':False, 'plot_slopes':'OLS', 'mark_outliers':True, 'extra_vars_to_keep':['cluster', 'press', 'cRL']}, legend=False)
@@ -1904,7 +1913,7 @@ if False:
     group_FH = Analysis_Group2([df], pp_FH, plot_title='')
     group_FH_cumul = Analysis_Group2([df], pp_FH_cumul, plot_title='')
     # Make the figure
-    make_figure([group_FH, group_FH_cumul], filename='f11_FH_and_cumul_vs_SA.pdf')#, row_col_list=[1,1, 0.3, 1.04])
+    make_figure([group_FH, group_FH_cumul], filename='alpha_d_f11_FH_and_cumul_vs_SA.png')#, row_col_list=[1,1, 0.3, 1.04])
 
 
 exit(0)

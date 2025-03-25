@@ -295,7 +295,7 @@ def make_figure(groups_to_plot, filename=None, use_same_x_axis=False, use_same_y
     if filename != None:
         print('- Saving figure to outputs/'+filename)
         if '.png' in filename or '.pdf' in filename:
-            plt.savefig('outputs/'+filename, dpi=600)
+            plt.savefig('outputs/'+filename, dpi=600, transparent=True)
         elif '.pickle' in filename:
             pl.dump(fig, open('outputs/'+filename, 'wb'))
         else:
@@ -423,4 +423,4 @@ pfs_0 = ahf.Profile_Filters()
 group_clstr_BGR1415 = ahf.Analysis_Group(ds_BGR1415, pfs_0, pp_pre_clstrd, plot_title='BGR1415 Clusters')
 group_clstr_BGR1516 = ahf.Analysis_Group(ds_BGR1516, pfs_0, pp_pre_clstrd, plot_title='BGR1516 Clusters')
 # Plot the figure
-make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='f5_BGR1415-1516_ps_and_clstrs.png')
+make_figure([group_param_sweep1, group_clstr_BGR1415, group_param_sweep2, group_clstr_BGR1516], row_col_list=[2,2, 0.45, 1.4], filename='alpha_f5_BGR1415-1516_ps_and_clstrs.png')
